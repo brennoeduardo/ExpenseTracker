@@ -1,17 +1,17 @@
-import cors from 'express'
 import express from 'express'
+import cors from 'cors'
+
 import healthRoutes from './src/routes/healthRoutes'
 import categoriesRoutes from './src/routes/categoriesRoutes'
 import transactionsRoutes from './src/routes/transactionsRoutes'
 
 const app = express()
 
-app.use('/categories', categoriesRoutes)
-
-app.use(cors())
 app.use(express.json())
-app.use(healthRoutes)
-app.use(categoriesRoutes)
-app.use(transactionsRoutes)
+app.use(cors())
 
-export default app  
+app.use('/health', healthRoutes)
+app.use('/categories', categoriesRoutes)
+app.use('/transactions', transactionsRoutes)
+
+export default app

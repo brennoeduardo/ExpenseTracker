@@ -12,4 +12,19 @@ model categories {
   name       String    @db.VarChar(100)
   type       String    @db.VarChar(10)
   created_at DateTime? @default(now()) @db.Timestamp(6)
+
+  transactions transaction[]
+}
+
+model transaction {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(100)
+  description String @db.VarChar(250)
+  amount      Int
+  transaction_date DateTime? @db.Date
+
+  category_id Int
+  category    categories @relation(fields: [category_id], references: [id])
+
+  created_at DateTime? @default(now()) @db.Timestamp(6)
 }

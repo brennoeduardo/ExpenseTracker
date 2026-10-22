@@ -1,45 +1,12 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
+import { createTransaction, deleteTransaction, getTransactionById, getTransactions, updateTransaction } from '../controllers/transactionsController'
 
 const router = Router()
-// TODO
 
-router.get('/transactions', (_req: Request, res: Response) => {
-    res.status(200).json({
-        message: 'Transacoes retornadas com sucesso',
-        data: [{}]
-    })
-})
-// TODO
-
-router.get('/transactions/:id', (_req: Request, res: Response) => {
-    res.status(200).json({
-        message: 'Transacao retornada com sucesso',
-        data: [{}]
-    })
-})
-// TODO
-
-router.post('/transactions', (_req: Request, res: Response) => {
-    res.status(201).json({
-        message: 'Transacao registrada com sucesso',
-        data: [{}]
-    })
-})
-// TODO
-
-router.put('/transactions/:id', (_req: Request, res: Response) => {
-    res.status(200).json({
-        message: 'Transacao atualizada com sucesso',
-        data: [{}]
-    })
-})
-// TODO
-
-router.delete('/transactions/:id', (_req: Request, res: Response) => {
-    res.status(204).json({
-        message: 'Transacao excluida com sucesso',
-        data: [{}]
-    })
-})
+router.get('/', getTransactions)
+router.get('/:id', getTransactionById)
+router.post('/', createTransaction)
+router.put('/:id', updateTransaction)
+router.delete('/:id', deleteTransaction)
 
 export default router;

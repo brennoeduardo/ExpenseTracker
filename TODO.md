@@ -16,10 +16,10 @@
 - [x] DELETE /categories/:id
 
 ### Transactions
-- [ ] Modelar tabela de transações no Prisma
-- [ ] Criar relacionamento com categorias
-- [ ] Implementar CRUD de transações
-- [ ] Implementar filtros por período e categoria
+- [x] Modelar tabela de transações no Prisma
+- [x] Criar relacionamento com categorias
+- [x] Implementar CRUD de transações
+- [x] Implementar filtros por período e categoria
 
 ### Improvements
 - [ ] Implementar validações com Zod
