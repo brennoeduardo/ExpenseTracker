@@ -1,25 +1,39 @@
-import { pool } from '../database/connection'
+import { prisma } from "../database/prisma"
 
-// da pra melhorar
+type Category = {
+    name: string
+    type: string
+}
+
 export async function findAll() {
-    try {
-
-        const query = 'SELECT * FROM categories'
-
-        const { rows } = await pool.query(query)
-
-        return rows
-
-    } catch (error) {
-        process.exit(1)
-    }
+    return prisma.categories.findMany()
 }
 
 export async function findById(id: number) {
-    const { rows } = await pool.query(
-        'SELECT * FROM categories WHERE id = $1',
-        [id]
-    )
+    return prisma.categories.findUnique({ where: { id } })
+}
 
-    return rows[0] ?? null
+export async function createCategory(body: Category) {
+    return prisma.categories.create({
+        data: {
+            name: body.name.trim(),
+            type: body.type.trim()
+        }
+    })
+}
+
+export async function updateCategory(id: number, body: Category) {
+    return prisma.categories.update({
+        where: { id },
+        data: {
+            name: body.name.trim(),
+            type: body.type.trim()
+        },
+    })
+
+}
+
+export async function deleteCategory(id: number) {
+    return prisma.categories.delete({ where: { id } })
+
 }

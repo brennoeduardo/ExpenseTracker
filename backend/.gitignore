@@ -1,1 +1,15 @@
+node_modules/
+
 .env
+.env.*
+!.env.example
+
+dist/
+build/
+
+src/generated/
+backend/src/generated/
+
+.vscode/
+
+*.log

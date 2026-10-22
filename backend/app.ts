@@ -6,12 +6,12 @@ import transactionsRoutes from './src/routes/transactionsRoutes'
 
 const app = express()
 
+app.use('/categories', categoriesRoutes)
+
 app.use(cors())
 app.use(express.json())
 app.use(healthRoutes)
 app.use(categoriesRoutes)
 app.use(transactionsRoutes)
-
-
 
 export default app  
