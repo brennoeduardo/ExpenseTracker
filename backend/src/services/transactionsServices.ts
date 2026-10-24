@@ -1,5 +1,6 @@
 import { prisma } from "../database/prisma"
-import { Prisma } from "../generated/prisma/client"
+import { UpdateTransactionInput } from "../schemas/transactionSchema"
+import { buildTransactionFilters } from "./helpers/buildTransactionFilters"
 
 type Transaction = {
     name: string,
@@ -8,7 +9,7 @@ type Transaction = {
     description: string
 }
 
-interface TransactionsFilter {
+export interface TransactionFilters {
     category_id?: number
     type?: string
     start_date?: string
@@ -16,24 +17,8 @@ interface TransactionsFilter {
     transaction_date?: {}
 }
 
-export async function findTransactions(filters?: TransactionsFilter) {
-
-    const where: Prisma.transactionWhereInput = {}
-
-    if (filters?.category_id !== undefined) where.category_id = Number(filters.category_id)
-    if (filters?.type) where.category = { type: filters.type }
-    if (filters?.start_date || filters?.end_date) {
-        where.transaction_date = {
-            ...(filters.start_date && {
-                gte: new Date(filters.start_date)
-            }),
-            ...(filters.end_date && {
-                lte: new Date(filters.end_date)
-            })
-        }
-    }
-
-    return prisma.transaction.findMany({ where })
+export async function findTransactions(filters: TransactionFilters) {
+    return prisma.transaction.findMany({ where: buildTransactionFilters(filters), })
 }
 
 export async function findTransactionById(id: number) {
@@ -41,8 +26,6 @@ export async function findTransactionById(id: number) {
 }
 
 export async function createTransaction(payload: Transaction) {
-
-    console.log(payload)
     return prisma.transaction.create({
         data: {
             name: payload.name.trim(),
@@ -53,20 +36,42 @@ export async function createTransaction(payload: Transaction) {
     })
 }
 
-export async function updateTransaction(id: number, payload: Transaction) {
+export async function updateTransaction(id: number, payload: UpdateTransactionInput) {
     return prisma.transaction.update({
         where: { id },
-        data: {
-            name: payload.name.trim(),
-            amount: payload.amount,
-            description: payload.description,
-            category_id: payload.category_id
-        },
+        data: payload
     })
-
 }
 
 export async function deleteTransaction(id: number) {
     return prisma.transaction.delete({ where: { id } })
+}
+
+export async function findSummary(filters: TransactionFilters) {
+
+    const where = buildTransactionFilters(filters)
+
+    const [income, expenses] = await Promise.all([
+        prisma.transaction.aggregate({
+            where: {
+                AND: [where, { category: { type: 'income' } }]
+            },
+            _sum: { amount: true }
+        }),
+
+        prisma.transaction.aggregate({
+            where: {
+                AND: [where, { category: { type: 'expense' } }]
+            },
+            _sum: { amount: true }
+        })
+    ])
+
+    const totalIncome = income._sum.amount ?? 0
+    const totalExpenses = expenses._sum.amount ?? 0
+
+    const balance = totalIncome - totalExpenses
+
+    return { income: totalIncome, expenses: totalExpenses, balance }
 
 }

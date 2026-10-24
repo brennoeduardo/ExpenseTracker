@@ -1,4 +1,5 @@
 import { prisma } from "../database/prisma"
+import { UpdateCategoryInput } from "../schemas/categorySchema"
 
 type Category = {
     name: string
@@ -14,6 +15,7 @@ export async function findById(id: number) {
 }
 
 export async function createCategory(body: Category) {
+
     return prisma.categories.create({
         data: {
             name: body.name.trim(),
@@ -22,13 +24,10 @@ export async function createCategory(body: Category) {
     })
 }
 
-export async function updateCategory(id: number, body: Category) {
+export async function updateCategory(id: number, body: UpdateCategoryInput) {
     return prisma.categories.update({
         where: { id },
-        data: {
-            name: body.name.trim(),
-            type: body.type.trim()
-        },
+        data: body,
     })
 
 }

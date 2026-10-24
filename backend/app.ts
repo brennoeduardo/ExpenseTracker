@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 
+import errorHandler from '../backend/src/middlewares/errorHandler'
+
 import healthRoutes from './src/routes/healthRoutes'
 import categoriesRoutes from './src/routes/categoriesRoutes'
 import transactionsRoutes from './src/routes/transactionsRoutes'
@@ -13,5 +15,7 @@ app.use(cors())
 app.use('/health', healthRoutes)
 app.use('/categories', categoriesRoutes)
 app.use('/transactions', transactionsRoutes)
+
+app.use(errorHandler)
 
 export default app

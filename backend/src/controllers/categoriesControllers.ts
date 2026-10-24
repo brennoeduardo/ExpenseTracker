@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import * as categoryService from '../services/categoriesServices'
+import { categorySchema, updateCategorySchema } from '../schemas/categorySchema'
+import z from 'zod'
 
 export async function getCategories(req: Request, res: Response, next: NextFunction) {
     try {
@@ -40,21 +42,15 @@ export async function getCategoryByID(req: Request, res: Response, next: NextFun
 }
 
 export async function createCategory(req: Request, res: Response, next: NextFunction) {
-    const { name, type } = req.body ?? {}
-
-    if (typeof name !== 'string' || !name.trim() || name.length > 100) {
-        return res.status(400).json({ message: 'Nome inválido' })
-    }
-
-    if (typeof type !== 'string' || !type.trim() || type.length > 10) {
-        return res.status(400).json({ message: 'Tipo inválido' })
-    }
-
     try {
 
-        const data = await categoryService.createCategory({ name: name.trim(), type: type.trim() })
+        const result = categorySchema.safeParse(req.body)
 
-        return res.status(201).json({ message: 'Categoria criada com sucesso', data })
+        if (!result.success) return res.status(400).json({ message: 'Dados invalidos', errors: z.treeifyError(result.error) })
+
+        const category = await categoryService.createCategory(result.data)
+
+        return res.status(201).json({ message: 'Categoria criada com sucesso', category })
 
     } catch (error) {
         next(error)
@@ -66,9 +62,13 @@ export async function updateCategory(req: Request, res: Response, next: NextFunc
 
         const id = Number(req.params.id)
 
-        const data = await categoryService.updateCategory(id, req.body)
+        const result = updateCategorySchema.safeParse(req.body)
 
-        res.status(200).json({ message: 'Categoria atualizada com sucesso', data })
+        if(!result.success) return res.status(400).json({ message: 'Dados invalidos', errors: z.treeifyError(result.error)})
+
+        const category = await categoryService.updateCategory(id, result.data)
+
+        res.status(200).json({ message: 'Categoria atualizada com sucesso', category })
 
     } catch (error) {
         next(error)
