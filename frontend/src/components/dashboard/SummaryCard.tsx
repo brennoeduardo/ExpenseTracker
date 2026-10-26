@@ -1,10 +1,8 @@
-
 import type { ReactNode } from 'react'
 import { LoaderCircle } from 'lucide-react'
 
 interface SummaryCardProps {
-    error: string | null,
-    loading: boolean,
+    loading: boolean
     title: string
     value: number
     icon: ReactNode
@@ -12,7 +10,6 @@ interface SummaryCardProps {
 }
 
 export default function SummaryCard({
-    error,
     loading,
     title,
     value,
@@ -43,26 +40,21 @@ export default function SummaryCard({
                 </span>
             </div>
 
-            { error !== null ? <p>Tente novamente</p> : <p>{error}</p>}
-
-            {
-                loading && error === null
-                    ?
-                    <div role="status" aria-label="Carregando dados financeiros">
-                        <LoaderCircle
-                            size={24}
-                            strokeWidth={1.5}
-                            className="animate-spin text-primary"
-                        />
-                    </div>
-                    :
-                    <h2 className={`text-2xl font-bold tabular-nums ${colors[variant]}`}>
-                        {variant === 'income' && '+'}
-                        {variant === 'expense' && '−'}
-                        {formattedValue}
-                    </h2>}
-
-
+            {loading ? (
+                <div role="status" aria-label="Carregando dados financeiros">
+                    <LoaderCircle
+                        size={24}
+                        strokeWidth={1.5}
+                        className="animate-spin text-primary"
+                    />
+                </div>
+            ) : (
+                <h2 className={`text-2xl font-bold tabular-nums ${colors[variant]}`}>
+                    {variant === 'income' && '+'}
+                    {variant === 'expense' && '−'}
+                    {formattedValue}
+                </h2>
+            )}
         </div>
     )
 }

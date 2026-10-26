@@ -14,6 +14,7 @@ export async function getFinancialSummary() {
 
     } catch (error) {
         console.log(error)
+        throw new Error('Erro')
     }
 
 }

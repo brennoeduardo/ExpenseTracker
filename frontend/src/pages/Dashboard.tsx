@@ -1,45 +1,46 @@
 
 import { ArrowDownLeft, ArrowUpRight, Wallet } from 'lucide-react'
 import SummaryCard from '../components/dashboard/SummaryCard'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getFinancialSummary } from '../services/transactionService'
 import type { FinancialSummary } from '../types/transaction'
 
 export default function Dashboard() {
+
     const [loading, setLoading] = useState(false)
-    const [summary, setSummary] = useState<FinancialSummary | null>(null)
     const [error, setError] = useState<string | null>(null)
+    const [summary, setSummary] = useState<FinancialSummary | null>(null)
+
+    const active = useRef(true)
+
+    async function fetchSummary() {
+
+        try {
+
+            setLoading(true)
+            setError(null)
+
+            const data = await getFinancialSummary()
+            if (active.current) setSummary(data)
+
+
+        } catch (error) {
+            console.error('Erro ao buscar resumo:', error)
+            if (active.current) setError('Não foi possível carregar o resumo financeiro.')
+        } finally {
+            if (active.current) setLoading(false)
+        }
+    }
+
 
     useEffect(() => {
-
-        let active = true
-
-        setLoading(true)
-
-        async function fetchSummary() {
-
-            try {
-
-                const data = await getFinancialSummary()
-                if (active) setSummary(data)
-
-            } catch (error) {
-                console.error(error)
-                if (active) setError('Não foi possível carregar o resumo financeiro.')
-
-
-            } finally {
-                if (active) setLoading(false)
-            }
-        }
+        active.current = true
 
         fetchSummary()
 
-        return () => { active = false }
+        return () => { active.current = false }
 
     }, [])
-
-
 
     return (
         <main className="min-h-screen bg-background p-6 text-foreground md:p-10">
@@ -53,34 +54,46 @@ export default function Dashboard() {
                     </p>
                 </header>
 
-                <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <SummaryCard
-                        error={error}
-                        loading={loading}
-                        title="Saldo total"
-                        value={summary?.balance ?? 0}
-                        variant="balance"
-                        icon={<Wallet size={22} strokeWidth={1.5} />}
-                    />
+                {
+                    error ?
+                        <div role="alert">
+                            <p>{error}</p>
+                            <button
+                                type="button"
+                                onClick={fetchSummary}
+                                className="rounded-md bg-primary px-4 py-2 text-white m-1"
+                            >
+                                Tentar novamente
+                            </button>
+                        </div> :
 
-                    <SummaryCard
-                        error={error}
-                        loading={loading}
-                        title="Receitas"
-                        value={summary?.income ?? 0}
-                        variant="income"
-                        icon={<ArrowDownLeft size={22} strokeWidth={1.5} />}
-                    />
+                        <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <SummaryCard
+                                loading={loading}
+                                title="Saldo total"
+                                value={summary?.balance ?? 0}
+                                variant="balance"
+                                icon={<Wallet size={22} strokeWidth={1.5} />}
+                            />
 
-                    <SummaryCard
-                        error={error}
-                        loading={loading}
-                        title="Despesas"
-                        value={summary?.expenses ?? 0}
-                        variant="expense"
-                        icon={<ArrowUpRight size={22} strokeWidth={1.5} />}
-                    />
-                </section>
+                            <SummaryCard
+                                loading={loading}
+                                title="Receitas"
+                                value={summary?.income ?? 0}
+                                variant="income"
+                                icon={<ArrowDownLeft size={22} strokeWidth={1.5} />}
+                            />
+
+                            <SummaryCard
+                                loading={loading}
+                                title="Despesas"
+                                value={summary?.expenses ?? 0}
+                                variant="expense"
+                                icon={<ArrowUpRight size={22} strokeWidth={1.5} />}
+                            />
+
+                        </section>
+                }
             </div>
         </main>
     )
