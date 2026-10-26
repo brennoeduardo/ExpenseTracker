@@ -98,8 +98,6 @@ export async function getSummary(req: Request, res: Response, next: NextFunction
 
         const result = transactionFilterSchema.safeParse(req.query)
 
-        console.log(result)
-
         if(!result.success) return res.status(400).json({ message: 'Filtros invalidos', errors: z.treeifyError(result.error)})
 
         const data = await transactionServices.findSummary(result.data)
