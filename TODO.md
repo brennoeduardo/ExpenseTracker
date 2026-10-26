@@ -22,8 +22,8 @@
 - [x] Implementar filtros por período e categoria
 
 ### Improvements
-- [ ] Implementar validações com Zod
-- [ ] Criar middleware global de erros
+- [x] Implementar validações com Zod
+- [x] Criar middleware global de erros
 - [ ] Padronizar respostas HTTP
 - [ ] Implementar testes com Vitest
 
