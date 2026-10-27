@@ -1,4 +1,4 @@
-import { DollarSign, PlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import { Dialog } from 'radix-ui'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
