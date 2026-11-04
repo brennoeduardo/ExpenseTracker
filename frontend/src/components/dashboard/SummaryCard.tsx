@@ -31,7 +31,7 @@ export default function SummaryCard({
     return (
         <div className="rounded-card border border-border bg-surface p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-                <span className="text-sm text-muted">
+                <span className="text-sm text-black">
                     {title}
                 </span>
 

@@ -1,20 +1,35 @@
+import type { CreateTransaction } from "@/components/transactions/CreateTransaction"
+
+const url = 'http://localhost:3000'
+
 export async function getFinancialSummary() {
 
-    const url = 'http://localhost:3000/transactions/summary'
+    const response = await fetch(`${url}/transactions/summary`)
 
-    try {
+    if (!response.ok) throw new Error(`Erro ao buscar resumo financeiro: ${response.status} ${response.statusText}`)
 
-        const response = await fetch(url)
+    const result = await response.json()
 
-        if (!response.ok) throw new Error('Erro ao tentar consumir a API')
+    return result.data
 
-        const result = await response.json()
+}
 
-        return result.data
+export async function createTransaction(payload: CreateTransaction) {
 
-    } catch (error) {
-        console.log(error)
-        throw new Error('Erro')
-    }
+    const response = await fetch(`${url}/transactions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+
+    const data = await response.json()
+
+    console.log(data.errors)
+
+    if (!response.ok) throw new Error(`${data.message} - ${data.errors}` || `Erro ao criar transação: ${response.status}`)
+
+    return data
 
 }

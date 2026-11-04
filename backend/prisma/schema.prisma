@@ -19,7 +19,7 @@ model categories {
 model transaction {
   id          Int    @id @default(autoincrement())
   name        String @db.VarChar(100)
-  description String @db.VarChar(250)
+  description String? @db.VarChar(250)
   amount      Int
   transaction_date DateTime? @db.Date
 

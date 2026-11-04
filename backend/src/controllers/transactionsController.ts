@@ -1,7 +1,7 @@
 
 import { NextFunction, Request, Response } from 'express'
 import * as transactionServices from '../services/transactionsServices'
-import { transactionFilterSchema, transactionSchema, updateTransactionSchema} from '../schemas/transactionSchema'
+import { transactionFilterSchema, transactionSchema, updateTransactionSchema } from '../schemas/transactionSchema'
 import * as z from 'zod'
 
 export async function getTransactions(req: Request, res: Response, next: NextFunction) {
@@ -44,6 +44,7 @@ export async function getTransactionById(req: Request, res: Response, next: Next
 
 export async function createTransaction(req: Request, res: Response, next: NextFunction) {
     try {
+
         const result = transactionSchema.safeParse(req.body)
 
         if (!result.success) return res.status(400).json({ message: 'Os dados da transação são inválidos.', errors: z.treeifyError(result.error) })
@@ -98,12 +99,12 @@ export async function getSummary(req: Request, res: Response, next: NextFunction
 
         const result = transactionFilterSchema.safeParse(req.query)
 
-        if(!result.success) return res.status(400).json({ message: 'Filtros invalidos', errors: z.treeifyError(result.error)})
+        if (!result.success) return res.status(400).json({ message: 'Filtros invalidos', errors: z.treeifyError(result.error) })
 
         const data = await transactionServices.findSummary(result.data)
 
         return res.status(200).json({ message: data ? 'Resumo encontrado com sucesso.' : 'Nenhuma resumo encontrado.', data })
-        
+
     } catch (error) {
         next(error)
     }

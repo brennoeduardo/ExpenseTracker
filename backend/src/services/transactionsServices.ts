@@ -6,9 +6,9 @@ type Transaction = {
     name: string,
     amount: number,
     category_id: number,
-    description: string
+    description?: string | undefined,
+    transaction_date?: string
 }
-
 export interface TransactionFilters {
     category_id?: number
     type?: string
@@ -30,8 +30,9 @@ export async function createTransaction(payload: Transaction) {
         data: {
             name: payload.name.trim(),
             amount: payload.amount,
-            description: payload.description,
-            category_id: payload.category_id
+            description: payload.description ?? '',
+            category_id: payload.category_id,
+            transaction_date: payload.transaction_date ? new Date(payload.transaction_date) : new Date()
         }
     })
 }

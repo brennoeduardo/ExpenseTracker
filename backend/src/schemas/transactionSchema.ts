@@ -2,10 +2,10 @@ import * as z from 'zod'
 
 export const transactionSchema = z.object({
     name: z.string().trim().min(1).max(100),
-    description: z.string().trim().min(1).max(250),
+    description: z.string().max(250).optional(),
     amount: z.int().positive(),
     category_id: z.int().positive(),
-    transaction_date: z.iso.date()
+    transaction_date: z.iso.date().optional()
 })
 
 

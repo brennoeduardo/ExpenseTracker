@@ -29,14 +29,15 @@
 
 ## Frontend
 
-- [ ] Configurar React + TypeScript + Vite
-- [ ] Configurar Tailwind CSS + Radix UI
-- [ ] Criar layout principal
-- [ ] Criar dashboard financeiro
+- [x] Configurar React + TypeScript + Vite
+- [x] Configurar Tailwind CSS + Radix UI
+- [x] Criar layout principal
+- [x] Criar dashboard financeiro
 - [ ] Criar gerenciamento de categorias
 - [ ] Criar formulário de receitas e despesas
-- [ ] Integrar frontend com a API
+- [x] Integrar frontend com a API
 - [ ] Implementar filtros e gráficos
+- [ ] Criar tratamento de erros retornados do ZOD
 
 ## Finalização
 

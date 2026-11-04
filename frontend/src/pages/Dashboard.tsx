@@ -1,18 +1,51 @@
 
-import { ArrowDownLeft, ArrowUpRight, PlusIcon, Wallet } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Wallet } from 'lucide-react'
 import SummaryCard from '../components/dashboard/SummaryCard'
-import CreateTransaction from '../components/transactions/CreateTransaction'
+import CreateTransaction, { type CreateTransaction as CreateTransactionType } from '../components/transactions/CreateTransaction'
 import { useState, useEffect, useRef } from 'react'
-import { getFinancialSummary } from '../services/transactionService'
+import { getFinancialSummary, createTransaction } from '../services/transactionService'
 import type { FinancialSummary } from '../types/transaction'
+import { getCategories } from '@/services/categoriesService'
+import type { Category } from '@/types/categories'
+import { toast } from 'sonner'
 
 export default function Dashboard() {
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [summary, setSummary] = useState<FinancialSummary | null>(null)
+    const [categories, setCategories] = useState<Category[]>([])
 
     const active = useRef(true)
+
+    async function handleCreateTransaction(payload: CreateTransactionType) {
+        try {
+            setLoading(true)
+            setError(null)
+
+            await createTransaction({
+                ...payload,
+                amount: Math.round(payload.amount * 100)
+            })
+
+        } catch (error) {
+            if (active.current) {
+                setError('Não foi possível criar uma nova transação')
+
+                toast.error(
+                    error instanceof Error
+                        ? error.message
+                        : 'Erro ao criar transação'
+                )
+            }
+
+            throw error
+
+        } finally {
+            if (active.current) setLoading(false)
+            await fetchSummary()
+        }
+    }
 
     async function fetchSummary() {
 
@@ -24,7 +57,6 @@ export default function Dashboard() {
             const data = await getFinancialSummary()
             if (active.current) setSummary(data)
 
-
         } catch (error) {
             console.error('Erro ao buscar resumo:', error)
             if (active.current) setError('Não foi possível carregar o resumo financeiro.')
@@ -33,11 +65,24 @@ export default function Dashboard() {
         }
     }
 
+    async function fetchCategories() {
+        try {
+            const data = await getCategories()
+
+            if (active.current) setCategories(data)
+
+        } catch (error) {
+            console.error('Erro ao buscar categorias:', error)
+            if (active.current) setError('Erro ao buscar categorias')
+        }
+    }
+
 
     useEffect(() => {
         active.current = true
 
         fetchSummary()
+        fetchCategories()
 
         return () => { active.current = false }
 
@@ -52,7 +97,7 @@ export default function Dashboard() {
                         <p className="mt-1 text-sm text-muted"> Acompanhe suas finanças em um só lugar. </p>
                     </div>
                     <div>
-                        <CreateTransaction />
+                        <CreateTransaction onCreate={handleCreateTransaction} categories={categories} />
                     </div>
                 </header>
 
