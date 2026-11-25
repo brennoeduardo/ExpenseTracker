@@ -8,6 +8,11 @@ export async function getTransactions(req: Request, res: Response, next: NextFun
     try {
         const result = transactionFilterSchema.safeParse(req.query)
 
+        const page = Number(req.query.page ?? 1);
+        const limit = Number(req.query.limit ?? 10);
+
+        const skip = (page - 1) * limit;
+
         if (!result.success) {
             return res.status(400).json({
                 message: 'Os filtros informados são inválidos.',
@@ -15,9 +20,15 @@ export async function getTransactions(req: Request, res: Response, next: NextFun
             })
         }
 
-        const data = await transactionServices.findTransactions(result.data)
+        const { transactions, pagination } = await transactionServices.findTransactions(result.data, page, limit);
 
-        return res.status(200).json({ message: data.length ? 'Transações encontradas com sucesso.' : 'Nenhuma transação encontrada.', data })
+        return res.status(200).json({
+            message: transactions.length
+                ? 'Transações encontradas com sucesso.'
+                : 'Nenhuma transação encontrada.',
+            data: transactions,
+            pagination
+        });
 
     } catch (error) {
         next(error)

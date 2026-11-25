@@ -1,4 +1,3 @@
-import { PlusIcon } from 'lucide-react'
 import { Dialog } from 'radix-ui'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -7,6 +6,17 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import type { Category } from '@/types/categories'
 import { NumericFormat } from 'react-number-format'
 import { toast } from 'sonner'
+
+import {
+    PlusIcon,
+    ArrowLeftRight,
+    ArrowDownLeft,
+    ArrowUpRight,
+    X,
+    Check
+} from 'lucide-react'
+
+import { Button } from '../ui/button'
 
 export interface CreateTransaction {
     name: string
@@ -56,6 +66,12 @@ export default function CreateTransaction({
     }
 
     function validate() {
+
+        if (!form.transaction_date) {
+            toast.error('Selecione a data da transação', { duration: 2500 })
+            return false
+        }
+
         if (!form.name.trim()) {
             toast.error('Insira um nome para a transação', { duration: 2500 })
             return false
@@ -91,116 +107,309 @@ export default function CreateTransaction({
     }
 
     return (
-        <Dialog.Root open={open} onOpenChange={(isOpen) => {
-            setOpen(isOpen)
-            if (!isOpen) reset()
-        }}>
+        <Dialog.Root
+            open={open}
+            onOpenChange={(isOpen) => {
+                setOpen(isOpen)
+                if (!isOpen) reset()
+            }}
+        >
 
             <Dialog.Trigger asChild>
-                <button className='cursor-pointer'>
-                    <PlusIcon />
-                </button>
+                <Button className="cursor-pointer gap-2 rounded-lg bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700">
+                    <PlusIcon size={18} />
+                    Nova transação
+                </Button>
             </Dialog.Trigger>
 
             <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
 
-                <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl">
-                    <Dialog.Title> Nova transação </Dialog.Title>
+                <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
 
-                    <Dialog.Description className="mt-2 text-sm text-gray-500">
-                        Preencha os dados para registrar uma transação.
-                    </Dialog.Description>
+                <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border bg-background text-foreground shadow-2xl">
 
-                    <Label htmlFor='name' className='pb-2 pt-2'>
-                        Nome
-                    </Label>
-                    <Input id="name" name='name' placeholder='Ex: Salário mensal' required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+                    <div className="space-y-4 border-b border-border p-6">
 
-                    <Label htmlFor='description' className='pb-2 pt-2'>
-                        Descrição
-                    </Label>
-                    <Input id="description" name='description' placeholder='Adicione uma descrição (opcional)' value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+                        <div className="flex items-start justify-between">
 
-                    <Label htmlFor='amount' className='pb-2 pt-2'>
-                        Valor
-                    </Label>
+                            <div className="flex size-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                <ArrowLeftRight size={23} />
+                            </div>
 
-                    <NumericFormat
-                        customInput={Input}
-                        thousandSeparator="."
-                        decimalSeparator=","
-                        decimalScale={2}
-                        prefix="R$ "
-                        placeholder="R$0,00"
-                        value={form.amount}
-                        onValueChange={(values) => {
-                            setForm({
-                                ...form,
-                                amount: Number(values.value || 0)
-                            })
-                        }}
-                    />
+                            <Dialog.Close asChild>
+                                <button
+                                    type="button"
+                                    aria-label="Fechar modal"
+                                    className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </Dialog.Close>
 
-                    <Label htmlFor='date' className='pb-2 pt-2'>
-                        Data
-                    </Label>
-                    <Input id="date" name="date" placeholder='01/01/2026' required type='date' value={form.transaction_date} onChange={(event) => setForm({ ...form, transaction_date: event.target.value })} />
+                        </div>
 
-                    <Label htmlFor='date' className='pb-2 pt-2'>
-                        Tipo
-                    </Label>
-                    <Select value={form.type} onValueChange={(value: 'expense' | 'income') => setForm({ ...form, type: value, category_id: null })}>
-                        <SelectTrigger className="w-full max-w ">
-                            <SelectValue placeholder="Selecione o tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                {types.map((item) => (
-                                    <SelectItem key={item.type} value={item.type}>
-                                        {item.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+                        <div className="space-y-1">
 
-                    <Select disabled={!form.type} value={form.category_id !== null ? String(form.category_id) : ''} onValueChange={(value: 'expense' | 'income') => setForm({ ...form, category_id: Number(value) })}>
-                        <SelectTrigger className="w-full max-w mt-2">
-                            <SelectValue placeholder="Selecione a categoria" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                {categories.filter((item) => item.type === form.type).map((item) => (
-                                    <SelectItem key={item.id} value={String(item.id)}>
-                                        {item.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+                            <Dialog.Title className="text-xl font-semibold tracking-tight">
+                                Nova transação
+                            </Dialog.Title>
 
-                    <div className="mt-4 flex justify-end gap-2">
+                            <Dialog.Description className="text-sm leading-relaxed text-muted-foreground">
+                                Registre uma receita ou despesa para manter
+                                suas finanças atualizadas.
+                            </Dialog.Description>
+
+                        </div>
+
+                    </div>
+
+                    <div className="space-y-5 p-6">
+
+                        <div className="space-y-2">
+
+                            <Label>Tipo de transação</Label>
+
+                            <div
+                                role="group"
+                                aria-label="Tipo de transação"
+                                className="grid grid-cols-2 gap-3"
+                            >
+
+                                <button
+                                    type="button"
+                                    aria-pressed={form.type === 'income'}
+                                    onClick={() =>
+                                        setForm({
+                                            ...form,
+                                            type: 'income',
+                                            category_id: null
+                                        })
+                                    }
+                                    className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${form.type === 'income'
+                                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                        : 'border-border text-muted-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    <ArrowDownLeft size={19} />
+                                    Receita
+                                </button>
+
+                                <button
+                                    type="button"
+                                    aria-pressed={form.type === 'expense'}
+                                    onClick={() =>
+                                        setForm({
+                                            ...form,
+                                            type: 'expense',
+                                            category_id: null
+                                        })
+                                    }
+                                    className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${form.type === 'expense'
+                                        ? 'border-red-500 bg-red-500/10 text-red-600 dark:text-red-400'
+                                        : 'border-border text-muted-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    <ArrowUpRight size={19} />
+                                    Despesa
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div className="space-y-2">
+
+                            <Label htmlFor="name">
+                                Nome da transação
+                            </Label>
+
+                            <Input
+                                id="name"
+                                name="name"
+                                placeholder="Ex: Salário mensal"
+                                required
+                                value={form.name}
+                                onChange={(event) =>
+                                    setForm({
+                                        ...form,
+                                        name: event.target.value
+                                    })
+                                }
+                                className="h-11 rounded-lg"
+                            />
+
+                        </div>
+
+                        <div className="space-y-2">
+
+                            <Label htmlFor="amount">
+                                Valor da transação
+                            </Label>
+
+                            <NumericFormat
+                                id="amount"
+                                customInput={Input}
+                                thousandSeparator="."
+                                decimalSeparator=","
+                                decimalScale={2}
+                                fixedDecimalScale
+                                allowNegative={false}
+                                prefix="R$ "
+                                placeholder="R$ 0,00"
+                                value={form.amount}
+                                onValueChange={(values) =>
+                                    setForm({
+                                        ...form,
+                                        amount: Number(values.value || 0)
+                                    })
+                                }
+                                className="h-16 rounded-xl bg-muted/30 px-4 text-xl font-semibold tabular-nums md:text-2xl"
+                            />
+
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                            <div className="min-w-0 space-y-2">
+
+                                <Label htmlFor="date">
+                                    Data
+                                </Label>
+
+                                <Input
+                                    id="date"
+                                    name="date"
+                                    required
+                                    type="date"
+                                    value={form.transaction_date}
+                                    onChange={(event) =>
+                                        setForm({
+                                            ...form,
+                                            transaction_date: event.target.value
+                                        })
+                                    }
+                                    className="h-11 w-full rounded-lg"
+                                />
+
+                            </div>
+
+                            <div className="min-w-0 space-y-2">
+
+                                <Label htmlFor="category">
+                                    Categoria
+                                </Label>
+
+                                <Select
+                                    disabled={!form.type}
+                                    value={
+                                        form.category_id !== null
+                                            ? String(form.category_id)
+                                            : ''
+                                    }
+                                    onValueChange={(value) =>
+                                        setForm({
+                                            ...form,
+                                            category_id: Number(value)
+                                        })
+                                    }
+                                >
+
+                                    <SelectTrigger
+                                        id="category"
+                                        className="h-11! w-full rounded-lg"
+                                    >
+                                        <SelectValue
+                                            placeholder="Selecione"
+                                        />
+                                    </SelectTrigger>
+
+                                    <SelectContent className="z-[60]">
+
+                                        <SelectGroup>
+
+                                            {categories
+                                                .filter((item) =>
+                                                    item.type === form.type
+                                                )
+                                                .map((item) => (
+                                                    <SelectItem
+                                                        key={item.id}
+                                                        value={String(item.id)}
+                                                    >
+                                                        {item.name}
+                                                    </SelectItem>
+                                                ))}
+
+                                        </SelectGroup>
+
+                                    </SelectContent>
+
+                                </Select>
+
+                            </div>
+
+                        </div>
+
+                        <div className="space-y-2">
+
+                            <div className="flex items-center justify-between">
+
+                                <Label htmlFor="description">
+                                    Descrição
+                                </Label>
+
+                                <span className="text-xs text-muted-foreground">
+                                    Opcional
+                                </span>
+
+                            </div>
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                placeholder="Adicione detalhes sobre a transação..."
+                                value={form.description}
+                                maxLength={250}
+                                rows={3}
+                                onChange={(event) =>
+                                    setForm({
+                                        ...form,
+                                        description: event.target.value
+                                    })
+                                }
+                                className="w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+                            />
+
+                        </div>
+
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 border-t border-border bg-muted/20 p-5">
 
                         <Dialog.Close asChild>
-                            <button className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="cursor-pointer rounded-lg"
+                            >
                                 Cancelar
-                            </button>
+                            </Button>
                         </Dialog.Close>
 
-                        <button
-                            onClick={() => { createTransaction() }}
-                            className="rounded-lg bg-green-500 px-5 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors"
+                        <Button
+                            type="button"
+                            onClick={createTransaction}
+                            className="cursor-pointer gap-2 rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700"
                         >
-                            Criar
-                        </button>
+                            <Check size={16} />
+                            Criar transação
+                        </Button>
 
                     </div>
 
                 </Dialog.Content>
 
             </Dialog.Portal>
-
 
         </Dialog.Root>
     )

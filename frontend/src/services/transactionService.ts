@@ -1,4 +1,5 @@
 import type { CreateTransaction } from "@/components/transactions/CreateTransaction"
+import type { TransactionResponse } from "@/types/transaction"
 
 const url = 'http://localhost:3000'
 
@@ -12,6 +13,15 @@ export async function getFinancialSummary() {
 
     return result.data
 
+}
+
+export async function getTransactions(page: number = 1, limit: number = 10): Promise<TransactionResponse> {
+
+    const response = await fetch(`${url}/transactions?page=${page}&limit=${limit}`);
+
+    if (!response.ok) throw new Error("Erro ao buscar transações");
+
+    return response.json();
 }
 
 export async function createTransaction(payload: CreateTransaction) {

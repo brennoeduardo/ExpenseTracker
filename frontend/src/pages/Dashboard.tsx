@@ -1,5 +1,5 @@
 
-import { ArrowDownLeft, ArrowUpRight, Wallet } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Wallet, RefreshCw, AlertCircle, ShieldCheck } from 'lucide-react'
 import SummaryCard from '../components/dashboard/SummaryCard'
 import CreateTransaction, { type CreateTransaction as CreateTransactionType } from '../components/transactions/CreateTransaction'
 import { useState, useEffect, useRef } from 'react'
@@ -48,7 +48,6 @@ export default function Dashboard() {
     }
 
     async function fetchSummary() {
-
         try {
 
             setLoading(true)
@@ -89,70 +88,113 @@ export default function Dashboard() {
     }, [])
 
     return (
-        <main className="min-h-screen bg-background p-6 text-foreground md:p-10">
-            <div className="mx-auto max-w-6xl space-y-8 ">
-                <header className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold"> Visão geral </h1>
-                        <p className="mt-1 text-sm text-muted"> Acompanhe suas finanças em um só lugar. </p>
+        <main className="min-h-screen w-full bg-background text-foreground">
+            <div className="mx-auto max-w-7xl space-y-8 px-6 py-8 md:px-10">
+
+                <header className="flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div className="space-y-2">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                            Controle financeiro
+                        </span>
+
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Visão geral
+                        </h1>
+
+                        <p className="max-w-lg text-sm text-muted-foreground">
+                            Acompanhe suas finanças e gerencie suas
+                            movimentações em um só lugar.
+                        </p>
                     </div>
-                    <div>
-                        <CreateTransaction onCreate={handleCreateTransaction} categories={categories} />
-                    </div>
+
+                    <CreateTransaction
+                        onCreate={handleCreateTransaction}
+                        categories={categories}
+                    />
+
                 </header>
 
-                {
-                    error ?
+                <section className="space-y-5">
+
+                    <div className="flex items-center justify-between">
+
+                        <div className="space-y-1">
+                            <h2 className="text-lg font-semibold tracking-tight">
+                                Resumo financeiro
+                            </h2>
+
+                            <p className="text-sm text-muted-foreground">
+                                Visão consolidada das suas movimentações.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={fetchSummary}
+                            disabled={loading}
+                            title="Atualizar resumo"
+                            aria-label="Atualizar resumo financeiro"
+                            className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <RefreshCw
+                                size={16}
+                                className={loading ? 'animate-spin' : ''}
+                            />
+                        </button>
+
+                    </div>
+
+                    {error ? (
+
                         <div
                             role="alert"
-                            aria-live="assertive"
-                            className="flex flex-col items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-6 text-center"
+                            className="flex flex-col items-center gap-4 rounded-xl border border-red-500/20 bg-red-500/5 px-6 py-10 text-center"
                         >
-                            <svg
-                                className="h-8 w-8 text-red-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={1.5}
-                                aria-hidden="true"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
-                                />
-                            </svg>
 
-                            <div>
-                                <h3 className="font-semibold text-red-800">
-                                    Não foi possível carregar o resumo
+                            <div className="flex size-12 items-center justify-center rounded-full bg-red-500/10">
+                                <AlertCircle
+                                    className="text-red-500"
+                                    size={24}
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <h3 className="font-semibold">
+                                    Algo deu errado
                                 </h3>
-                                <p className="mt-1 text-sm text-red-700">{error}</p>
+
+                                <p className="text-sm text-muted-foreground">
+                                    {error}
+                                </p>
                             </div>
 
                             <button
                                 type="button"
                                 onClick={fetchSummary}
                                 disabled={loading}
-                                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
                             >
-                                {loading && (
-                                    <span
-                                        className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
-                                        aria-hidden="true"
-                                    />
-                                )}
-                                {loading ? "Tentando..." : "Tentar novamente"}
-                            </button>
-                        </div> :
+                                <RefreshCw
+                                    size={14}
+                                    className={loading ? 'animate-spin' : ''}
+                                />
 
-                        <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                {loading ? 'Atualizando...' : 'Tentar novamente'}
+                            </button>
+
+                        </div>
+
+                    ) : (
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+
                             <SummaryCard
                                 loading={loading}
                                 title="Saldo total"
                                 value={summary?.balance ?? 0}
                                 variant="balance"
-                                icon={<Wallet size={22} strokeWidth={1.5} />}
+                                icon={<Wallet size={22} strokeWidth={1.8} />}
                             />
 
                             <SummaryCard
@@ -160,7 +202,7 @@ export default function Dashboard() {
                                 title="Receitas"
                                 value={summary?.income ?? 0}
                                 variant="income"
-                                icon={<ArrowDownLeft size={22} strokeWidth={1.5} />}
+                                icon={<ArrowDownLeft size={22} strokeWidth={1.8} />}
                             />
 
                             <SummaryCard
@@ -168,15 +210,35 @@ export default function Dashboard() {
                                 title="Despesas"
                                 value={summary?.expenses ?? 0}
                                 variant="expense"
-                                icon={<ArrowUpRight size={22} strokeWidth={1.5} />}
+                                icon={<ArrowUpRight size={22} strokeWidth={1.8} />}
                             />
 
-                        </section>
-                }
+                        </div>
+
+                    )}
+
+                </section>
+
+                <section className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
+
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <ShieldCheck size={20} />
+                    </div>
+
+                    <div className="space-y-1">
+                        <h3 className="text-sm font-semibold">
+                            Seu controle financeiro em um só lugar.
+                        </h3>
+
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                            Acompanhe suas receitas, despesas e saldo
+                            para tomar melhores decisões financeiras.
+                        </p>
+                    </div>
+
+                </section>
 
             </div>
-
-
         </main>
     )
 }

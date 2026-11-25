@@ -17,8 +17,41 @@ export interface TransactionFilters {
     transaction_date?: {}
 }
 
-export async function findTransactions(filters: TransactionFilters) {
-    return prisma.transaction.findMany({ where: buildTransactionFilters(filters), })
+export async function findTransactions(filters: TransactionFilters, page: number, limit: number) {
+    const where = buildTransactionFilters(filters);
+    const skip = (page - 1) * limit;
+
+    const [transactions, total] = await Promise.all([
+        prisma.transaction.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: [
+                { transaction_date: 'desc' },
+                { id: 'desc' }
+            ],
+            include: {
+                category: {
+                    select: {
+                        name: true,
+                        type: true
+                    }
+                }
+            }
+        }),
+
+        prisma.transaction.count({ where })
+    ]);
+
+    return {
+        transactions,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
 }
 
 export async function findTransactionById(id: number) {
